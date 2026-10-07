@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Medical Insurance Cost Predictor</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:linear-gradient(135deg,#07111f,#102a43);
+color:#fff;
+min-height:100vh;
+}
+.container{max-width:900px;margin:auto;padding:25px}
+.header{text-align:center;padding:20px 10px 25px}
+.header h1{font-size:32px;margin:5px 0 10px}
+.header p{color:#a9bdd2;margin:0}
+.card{
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.12);
+border-radius:20px;
+padding:25px;
+margin-bottom:20px;
+backdrop-filter:blur(10px);
+}
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+label{display:block;font-weight:bold;margin-bottom:8px}
+input[type=number]{
+width:100%;
+padding:13px;
+border-radius:10px;
+border:1px solid #456;
+background:#0b1c2e;
+color:#fff;
+font-size:16px;
+}
+input[type=range]{width:100%}
+.value{
+font-size:14px;
+color:#8fd3ff;
+margin-top:5px;
+}
+.options{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+.option{
+padding:10px 16px;
+border:1px solid #456;
+border-radius:10px;
+cursor:pointer;
+background:#0b1c2e;
+}
+.option.active{
+background:#1683d8;
+border-color:#1683d8;
+}
+button{
+width:100%;
+padding:15px;
+border:0;
+border-radius:12px;
+background:#1683d8;
+color:white;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+margin-top:20px;
+}
+button:hover{background:#0f6db5}
+.result{
+text-align:center;
+display:none;
+}
+.result h2{
+margin:5px 0;
+color:#8fd3ff;
+}
+.price{
+font-size:42px;
+font-weight:bold;
+margin:10px 0;
+}
+.small{color:#a9bdd2;font-size:14px}
+.stats{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+margin-top:20px;
+}
+.stat{
+background:#0b1c2e;
+padding:15px;
+border-radius:12px;
+text-align:center;
+}
+.stat b{display:block;font-size:18px;margin-bottom:5px}
+.note{
+font-size:13px;
+line-height:1.6;
+color:#a9bdd2;
+}
+.loading{display:none;text-align:center;margin-top:15px}
+.error{color:#ff8080;text-align:center;margin-top:15px}
+@media(max-width:650px){
+.grid{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr}
+.header h1{font-size:26px}
+.price{font-size:34px}
+.container{padding:15px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h1>🏥 Medical Insurance Cost Predictor</h1>
+<p>Machine Learning based insurance premium prediction</p>
+</div>
+
+<div class="card">
+<div class="grid">
+
+<div>
+<label>Age</label>
+<input id="ageRange" type="range" min="18" max="64" value="30"
+oninput="age.value=this.value">
+<input id="age" type="number" min="18" max="64" value="30"
+oninput="ageRange.value=this.value">
+<div class="value">Age: <span id="ageValue">30</span> years</div>
+</div>
+
+<div>
+<label>BMI</label>
+<input id="bmiRange" type="range" min="10" max="60" step="0.1" value="25"
+oninput="bmi.value=this.value">
+<input id="bmi" type="number" min="10" max="60" step="0.1" value="25"
+oninput="bmiRange.value=this.value">
+<div class="value">BMI: <span id="bmiValue">25</span></div>
+</div>
+
+<div>
+<label>Smoker</label>
+<div class="options">
+<div class="option active" id="noSmoker" onclick="setSmoker(false)">No</div>
+<div class="option" id="yesSmoker" onclick="setSmoker(true)">Yes</div>
+</div>
+</div>
+
+<div>
+<label>Number of Conditions</label>
+<div class="options">
+<div class="option active" onclick="setConditions(0,this)">0</div>
+<div class="option" onclick="setConditions(1,this)">1</div>
+<div class="option" onclick="setConditions(2,this)">2</div>
+<div class="option" onclick="setConditions(3,this)">3</div>
+</div>
+</div>
+
+</div>
+
+<button onclick="predict()">Predict Insurance Cost</button>
+<div class="loading" id="loading">Calculating using trained ML model...</div>
+<div class="error" id="error"></div>
+</div>
+
+<div class="card result" id="result">
+
+<div
